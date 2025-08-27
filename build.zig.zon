@@ -1,0 +1,22 @@
+.{
+    .name = .GraphicsKernel,
+    .version = "0.0.0",
+    .fingerprint = 0x381abf064761bb69, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.15.0",
+    .dependencies = .{
+        .sdl = .{
+            .url = "git+https://github.com/castholm/SDL.git#1994ca5dbad5a3e3c670a9ab8533d86cfd97bdc0",
+            .hash = "sdl-0.2.6+3.2.20-7uIn9NgjfwHH5a6HhyLHat2nHU3OP5B05QHhKJKuxEex",
+        },
+        .volk = .{.path = "deps/volk", .lazy = true },
+        .vma= .{.path = "deps/vma", .lazy = true },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        // For example...
+        //"LICENSE",
+        //"README.md",
+    },
+}
