@@ -15,7 +15,7 @@ pub fn Texture(comptime config: rhi.BuildConfig) type {
             };
         }
 
-        target: union(rhi.Api) {
+        target: union(rhi.Backend) {
             vk: if (config.is_target_supported(.vk)) struct {
                 image: *volk.c.VkImage
             } else void,

@@ -9,14 +9,28 @@ const c = @cImport({
 });
 const sdl_util = @import("sdl_util.zig");
 const rhi = @import("rhi/rhi.zig");
-
+const device = @import("rhi/device.zig");
 //const renderer =  rhi.Renderer(.{
 //    .supported = &.{ .vk },
 //});
 
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .thread_safe = true,
+    }){};
+    const allocator = gpa.allocator();
+
     try sdl_util.sdl3_error(c.SDL_Init(c.SDL_INIT_VIDEO));
-    
+
+    var renderer = try rhi.Renderer.init(allocator, .{
+        .vk = .{
+            .app_name = "GraphicsKernel",
+            .enable_validation_layer = true 
+        },
+    });
+    var adapter = try rhi.PhysicalAdapter.enumerate_adapters(allocator, &renderer);
+    defer adapter.deinit(allocator);
+
     //_ = renderer.Texture.init();
     //_ = try renderer.init(.{
     //    .vk = .{

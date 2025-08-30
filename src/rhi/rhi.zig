@@ -1,36 +1,52 @@
-const texture = @import("texture.zig");
 const volk = @import("volk");
 const vma = @import("vma");
 const vulkan = @import("vulkan.zig");
 const builtin = @import("builtin");
 
-pub const Renderer = @import("renderer.zig").Renderer;
-pub const Api = enum {
+
+const renderer = @import("renderer.zig");
+const texture = @import("texture.zig");
+const queue = @import("queue.zig");
+const physical_adapter = @import("physical_adapter.zig");
+
+pub const Renderer = renderer.Renderer;
+pub const PhysicalAdapter = physical_adapter.PhysicalAdapter;
+
+pub const Backend = enum {
     vk,
     dx12,
     mtl,
 };
 
-pub const PlatformApis = blk: {
-    const os = builtin.os.tag;
-    switch (os) {
-        .windows => break :blk .{ .vk, .dx12 },
-        .linux => break :blk .{ .vk },
-        .macos => break :blk .{ .mtl },
-        .ios => break :blk .{ .mtl },
-        else => break :blk .{},
+pub const platform_api = blk: {
+    switch (builtin.os.tag) {
+        .windows => break :blk [_]Backend{ .vk, .dx12 },
+        .linux => break :blk [_]Backend{ .vk },
+        .macos => break :blk [_]Backend{ .mtl },
+        .ios => break :blk [_]Backend{ .mtl },
+        else => break :blk [_]Backend{},
     }
 };
 
-pub fn is_target_supported(comptime target: Api) bool {
-    for (PlatformApis) |t| {
+
+pub fn platform_has_api(comptime target: Backend) bool {
+    for (platform_api) |t| {
         if (t == target) return true;
     }
     return false;
 }
 
-pub fn wrapper_api_type(api: Api, comptime impl: type) type{
-    if(is_target_supported(api)){
+pub fn is_target_selected(comptime api: Backend, ren: *Renderer) bool{
+    switch(api) {
+        .vk => return platform_has_api(.vk) and ren.backend == .vk,
+        .dx12 => return platform_has_api(.dx12) and ren.backend == .dx12,
+        .mtl => return platform_has_api(.mtl) and ren.backend == .mtl,
+    }
+}
+
+
+pub fn wrapper_platform_type(api: Backend, comptime impl: type) type{
+    if(platform_has_api(api)){
         return impl;
     } else {
         return void;
