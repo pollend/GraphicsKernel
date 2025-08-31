@@ -201,14 +201,6 @@ target: union(rhi.Backend) {
     mtl: rhi.wrapper_platform_type(.mtl, struct {}),
 } = undefined,
 
-fn vk_has_extension(properties: []const volk.c.VkExtensionProperties, val: []const u8) bool {
-    for (properties) |prop| {
-        if (std.mem.eql(u8, std.mem.sliceTo(prop.extensionName[0..], 0), val)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 pub fn enumerate_adapters(allocator: std.mem.Allocator, renderer: *rhi.Renderer) !std.ArrayList(PhysicalAdapter) {
     var result = std.ArrayList(PhysicalAdapter).empty;
@@ -249,7 +241,7 @@ pub fn enumerate_adapters(allocator: std.mem.Allocator, renderer: *rhi.Renderer)
             vulkan.add_next(&features, &features12);
             vulkan.add_next(&features, &features13);
 
-            if (vk_has_extension(extension_properties, volk.c.VK_KHR_PRESENT_ID_EXTENSION_NAME)) {
+            if (vulkan.vk_has_extension(extension_properties, volk.c.VK_KHR_PRESENT_ID_EXTENSION_NAME)) {
                 vulkan.add_next(&features, &present_id_features);
             }
 
@@ -268,8 +260,8 @@ pub fn enumerate_adapters(allocator: std.mem.Allocator, renderer: *rhi.Renderer)
                     0x8086 => .intel,
                     else => .unknown,
                 },
-                .target = .{ .vk = .{ .api_version = properties.properties.apiVersion, .physical_device = physicalDeviceProperties[i].physicalDevices[0], .is_present_id_supported = present_id_features.presentId > 0, .is_swap_chain_supported = vk_has_extension(extension_properties, volk.c.VK_KHR_SWAPCHAIN_EXTENSION_NAME), .is_buffer_device_address_supported = properties.properties.apiVersion >= volk.c.VK_API_VERSION_1_2 or
-                    vk_has_extension(extension_properties, volk.c.VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME), .is_amd_device_coherent_memory_supported = vk_has_extension(extension_properties, volk.c.VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME) } },
+                .target = .{ .vk = .{ .api_version = properties.properties.apiVersion, .physical_device = physicalDeviceProperties[i].physicalDevices[0], .is_present_id_supported = present_id_features.presentId > 0, .is_swap_chain_supported = vulkan.vk_has_extension(extension_properties, volk.c.VK_KHR_SWAPCHAIN_EXTENSION_NAME), .is_buffer_device_address_supported = properties.properties.apiVersion >= volk.c.VK_API_VERSION_1_2 or
+                    vulkan.vk_has_extension(extension_properties, volk.c.VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME), .is_amd_device_coherent_memory_supported = vulkan.vk_has_extension(extension_properties, volk.c.VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME) } },
                 .preset_level = blk: {
                     for (gpu_preset.desktop_presets) |preset| {
                         if (preset.vendor_id == properties.properties.vendorID and preset.model_id == properties.properties.deviceID) {

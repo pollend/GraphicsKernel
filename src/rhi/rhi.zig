@@ -3,7 +3,6 @@ const vma = @import("vma");
 const vulkan = @import("vulkan.zig");
 const builtin = @import("builtin");
 
-
 const renderer = @import("renderer.zig");
 const texture = @import("texture.zig");
 const queue = @import("queue.zig");
@@ -11,6 +10,7 @@ const physical_adapter = @import("physical_adapter.zig");
 
 pub const Renderer = renderer.Renderer;
 pub const PhysicalAdapter = physical_adapter.PhysicalAdapter;
+pub const Queue = queue.Queue;
 
 pub const Backend = enum {
     vk,

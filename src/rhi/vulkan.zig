@@ -1,7 +1,7 @@
 const volk = @import("volk");
 const std = @import("std");
 
-pub const default_device_extensions: [*c]const u8 = .{
+pub const default_device_extensions: [:0]const u8 = .{
     volk.c.VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     volk.c.VK_KHR_MAINTENANCE1_EXTENSION_NAME,
     volk.c.VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME,
@@ -121,6 +121,14 @@ pub fn debug_utils_messenger( messageSeverity: volk.c.VkDebugUtilsMessageSeverit
 }
 
 
+pub fn vk_has_extension(properties: []const volk.c.VkExtensionProperties, val: []const u8) bool {
+    for (properties) |prop| {
+        if (std.mem.eql(u8, std.mem.sliceTo(prop.extensionName[0..], 0), val)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 pub fn make_version(major: u32, minor: u32, patch: u32) u32 {
     return (major << 22) | (minor << 12) | patch;
