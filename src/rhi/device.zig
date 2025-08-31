@@ -14,12 +14,12 @@ queues: std.ArrayListUnmanaged(queue.Queue, 6),
 physical_device: physical_adapter.PhysicalAdapter,
 target: union(rhi.Target) {
     vk: rhi.wrapper_platform_type(.vk, struct {
-        maintenance5_features: bool,
-        conservative_raster_tier: bool,
-        swapchain_mutable_format: bool,
-        memory_budget: bool,
+        maintenance5Features: bool,
+        conservaitveRasterTier: bool,
+        swapchainMutableFormat: bool,
+        memoryBudget: bool, 
         device: volk.c.VkDevce,
-        vma_allocator: vma.c.VmaAllocator,
+        vmaAllocator: vma.c.VmaAllocator,
     })
 } = undefined
 

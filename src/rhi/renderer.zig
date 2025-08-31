@@ -5,16 +5,7 @@ const std = @import("std");
 const assert = std.debug.assert;
 const builtin = @import("builtin"); 
 
-//const zwindows = @import("zwindows");
-//const windows = zwindows.windows;
-//const dwrite = zwindows.dwrite;
-//const dxgi = zwindows.dxgi;
-//const d3d12 = zwindows.d3d12;
-//const d3d12d = zwindows.d3d12d;
-//const dml = zwindows.directml;
-//
 pub const Renderer = @This();
-
 allocator: std.mem.Allocator,
 backend: union(rhi.Backend) { 
     vk: rhi.wrapper_platform_type(.vk, struct { 
@@ -25,6 +16,22 @@ backend: union(rhi.Backend) {
     dx12: rhi.wrapper_platform_type(.dx12, struct {}), 
     mtl: rhi.wrapper_platform_type(.mtl, struct {}),
 },
+
+pub fn deinit(self: *Renderer) void {
+    switch (self.backend) {
+        .vk => |vk| {
+            if (vk.debug_message_utils != null and volk.c.vkDestroyDebugUtilsMessengerEXT != null) {
+                volk.c.vkDestroyDebugUtilsMessengerEXT.?(vk.instance, vk.debug_message_utils, null);
+            }
+            if (vk.instance != null) {
+                volk.c.vkDestroyInstance.?(vk.instance, null);
+            }
+        },
+        .dx12 => {},
+        .mtl => {},
+    }
+    volk.c.volkFinalize();
+}
 
 pub fn init(alloc: std.mem.Allocator, impl: union(rhi.Backend) {
     vk: struct { app_name: [*c]const u8, enable_validation_layer: bool },
